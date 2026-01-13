@@ -8,13 +8,24 @@ import adminAuth from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
+/* =================================================
+   SAFE UPLOAD DIRECTORY (CYBERPANEL SAFE)
+================================================= */
+const uploadDir = path.join("uploads", "cv");
+
+// Ensure folder exists
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 /* ================= MULTER SETUP ================= */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/cv");
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    const safeName = file.originalname.replace(/\s+/g, "_");
+    cb(null, Date.now() + "-" + safeName);
   }
 });
 
@@ -52,7 +63,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
       });
     }
 
-    /* ===== SAVE TO DATABASE ===== */
+    // ✅ SAVE TO DATABASE
     await Career.create({
       fullname,
       email,
@@ -64,17 +75,16 @@ router.post("/", upload.single("cv"), async (req, res) => {
       cv: req.file.filename
     });
 
-    /* ===== AUTO EMAIL REPLY ===== */
+    // ✅ AUTO REPLY EMAIL (NON-BLOCKING)
     try {
       const transporter = nodemailer.createTransport({
-        host: "localhost",
-        port: 587,
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
         secure: false,
         auth: {
           user: process.env.EMAIL_HR,
           pass: process.env.EMAIL_PASS
-        },
-        tls: { rejectUnauthorized: false }
+        }
       });
 
       await transporter.sendMail({
@@ -94,7 +104,7 @@ ${process.env.EMAIL_HR}`
       });
 
     } catch (mailErr) {
-      console.error("⚠️ Email failed but data saved:", mailErr.message);
+      console.error("⚠️ Email failed (ignored):", mailErr.message);
     }
 
     return res.status(201).json({
@@ -112,7 +122,7 @@ ${process.env.EMAIL_HR}`
 });
 
 /* =================================================
-   GET ALL CAREER APPLICATIONS (ADMIN)
+   GET ALL CAREERS (ADMIN)
 ================================================= */
 router.get("/all", adminAuth, async (req, res) => {
   try {
@@ -124,45 +134,30 @@ router.get("/all", adminAuth, async (req, res) => {
 });
 
 /* =================================================
-   DELETE CAREER + DELETE CV FILE (ADMIN)
+   DELETE CAREER + DELETE CV (ADMIN)
 ================================================= */
 router.delete("/:id", adminAuth, async (req, res) => {
   try {
-    const { id } = req.params;
-
-    // 1️⃣ Find record
-    const career = await Career.findById(id);
-
+    const career = await Career.findById(req.params.id);
     if (!career) {
-      return res.status(404).json({
-        success: false,
-        message: "Record not found"
-      });
+      return res.status(404).json({ message: "Record not found" });
     }
 
-    // 2️⃣ Delete CV file from server
-    if (career.cv) {
-      const filePath = path.join("uploads", "cv", career.cv);
-
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+    const filePath = path.join(uploadDir, career.cv);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
 
-    // 3️⃣ Delete database record
-    await Career.findByIdAndDelete(id);
+    await Career.findByIdAndDelete(req.params.id);
 
-    return res.json({
+    res.json({
       success: true,
       message: "Application and CV deleted successfully"
     });
 
   } catch (err) {
     console.error("Delete career error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Delete failed"
-    });
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 

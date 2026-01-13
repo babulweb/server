@@ -23,16 +23,14 @@ router.post("/", async (req, res) => {
     // ✅ 2. Send auto-reply (SAFE)
     try {
       const transporter = nodemailer.createTransport({
-        host: "localhost",       // VPS mail server
-        port: 587,
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
         secure: false,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
         },
-        tls: {
-          rejectUnauthorized: false
-        }
+        
       });
 
       await transporter.sendMail({
@@ -64,12 +62,12 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("Callback error:", err);
 
-    // if (err.code === 11000) {
-    //   return res.status(409).json({
-    //     success: false,
-    //     message: "Email or phone already exists"
-    //   });
-    // }
+    if (err.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Email or phone already exists"
+      });
+    }
 
     return res.status(500).json({
       success: false,
