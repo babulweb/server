@@ -84,6 +84,9 @@ router.post("/", upload.single("cv"), async (req, res) => {
         auth: {
           user: process.env.EMAIL_HR,
           pass: process.env.EMAIL_PASS
+        },
+        tls: {
+          rejectUnauthorized: false
         }
       });
 
