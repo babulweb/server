@@ -82,7 +82,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
         port: process.env.EMAIL_PORT,
         secure: false,
         auth: {
-          user: process.env.EMAIL_HR,
+          user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
         },
         tls: {
@@ -91,19 +91,20 @@ router.post("/", upload.single("cv"), async (req, res) => {
       });
 
       await transporter.sendMail({
-        from: `"Blackcode Technology" <${process.env.EMAIL_HR}>`,
+        from: `"Blackcode" <${process.env.EMAIL_HR}>`,
         to: email,
         subject: "Career Application Received – Blackcode",
         text: `Hi ${fullname},
 
-Thank you for applying to Blackcode Technology.
-We have received your application for the position of ${position}.
+              Thank you for applying to Blackcode.
+              We have received your application for the position of ${position}.
 
-Our HR team will review your profile and contact you if shortlisted.
+              Our HR team will review your profile and contact you if shortlisted.
 
-Regards,
-Blackcode Technology
-${process.env.EMAIL_HR}`
+              Regards,
+              Blackcode
+              www.blackcode.in
+              ${process.env.EMAIL_HR}`
       });
 
     } catch (mailErr) {

@@ -29,26 +29,22 @@ router.post("/", async (req, res) => {
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
-        },
-        tls: {
-          rejectUnauthorized: false
         }
       });
 
       await transporter.sendMail({
         from: `"Blackcode Technology" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: "Callback Request from Blackcode Technology.",
-        text: `
-              Hi ${fullname},
+        subject: "Callback Request from Blackcode.",
+        text: `Hi ${fullname},
 
-              Thank you for contacting Blackcode Technology.
+              Thank you for contacting Blackcode.
               We have received your request and our team will get back to you shortly.
 
               Regards,
-              Blackcode Technology
-              info@blackcode.in
-        `
+              Blackcode
+              www.blackcode.in
+              ${process.env.EMAIL_USER}`
       });
 
     } catch (mailErr) {
