@@ -25,7 +25,7 @@ router.post("/", async (req, res) => {
       const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
-        secure: false,
+        secure: true,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
@@ -34,7 +34,7 @@ router.post("/", async (req, res) => {
 
       await transporter.sendMail({
         from: `"Blackcode Technology" <${process.env.EMAIL_USER}>`,
-        replyTo: process.env.EMAIL_BLACK, 
+        replyTo: process.env.EMAIL_BLACKCODE,
         to: email,
         subject: "Callback Request from Blackcode.",
         text: `Hi ${fullname},
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
               Regards,
               Blackcode
               www.blackcode.in
-              ${process.env.EMAIL_USER}`
+              ${process.env.EMAIL_BLACKCODE}`
       });
 
     } catch (mailErr) {
