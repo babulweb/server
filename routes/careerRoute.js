@@ -91,7 +91,8 @@ router.post("/", upload.single("cv"), async (req, res) => {
       });
 
       await transporter.sendMail({
-        from: `"Blackcode" <${process.env.EMAIL_HR}>`,
+        from: `"Blackcode" <${process.env.EMAIL_USER}>`,
+        replyTo: process.env.EMAIL_HR,
         to: email,
         subject: "Career Application Received – Blackcode",
         text: `Hi ${fullname},

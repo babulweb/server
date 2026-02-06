@@ -34,6 +34,7 @@ router.post("/", async (req, res) => {
 
       await transporter.sendMail({
         from: `"Blackcode Technology" <${process.env.EMAIL_USER}>`,
+        replyTo: process.env.EMAIL_BLACK, 
         to: email,
         subject: "Callback Request from Blackcode.",
         text: `Hi ${fullname},
