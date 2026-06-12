@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { fullname, email, phone, description } = req.body;
+    const { fullname, email, phone, location, description } = req.body;
 
-    if (!fullname || !email || !phone || !description) {
+    if (!fullname || !email || !phone || !location || !description) {
       return res.status(400).json({
         success: false,
         message: "All fields are required"
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
     }
 
     // ✅ SAVE TO DB (CORRECT)
-    await Callback.create({ fullname, email, phone, description });
+    await Callback.create({ fullname, email, phone, location, description });
 
 
     // ✅ 2. Send auto-reply (SAFE)
@@ -85,7 +85,7 @@ router.get("/all", adminAuth, async (req, res) => {
 });
 
 /* DELETE BY ID */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
 
