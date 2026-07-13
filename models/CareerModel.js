@@ -9,6 +9,8 @@ const careerSchema = new mongoose.Schema(
     location: {type: String, required: true, trim: true},
     qualification: {type: String, required: true, trim: true},
     position: {type: String, required: true, trim: true},
+    experience: {type: String, required: true, trim: true},
+    expSalary: {type: String, required: true, trim: true},
     summary: {type: String, trim: true},
     cv: {type: String,required: true},
     createdAt: {type: String,default: DateTime}

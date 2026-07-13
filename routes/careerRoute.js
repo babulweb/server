@@ -46,10 +46,12 @@ router.post("/", upload.single("cv"), async (req, res) => {
       location,
       qualification,
       position,
+      experience,
+      expSalary,
       summary
     } = req.body;
 
-    if (!fullname || !email || !phone || !location || !qualification || !position) {
+    if (!fullname || !email || !phone || !location || !qualification || !position || !experience || !expSalary) {
       return res.status(400).json({
         success: false,
         message: "All required fields must be filled"
@@ -71,6 +73,8 @@ router.post("/", upload.single("cv"), async (req, res) => {
       location,
       qualification,
       position,
+      experience,
+      expSalary,
       summary,
       cv: req.file.filename
     });
@@ -80,7 +84,7 @@ router.post("/", upload.single("cv"), async (req, res) => {
       const transporter = nodemailer.createTransport({
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
-        secure: true,
+        secure: Number(process.env.EMAIL_PORT) === 465,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
